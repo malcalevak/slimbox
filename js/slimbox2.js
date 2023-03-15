@@ -8,7 +8,7 @@
 
 	// Global variables, accessible to Slimbox only
 	var win = $(window), options, images, activeImage = -1, activeURL, prevImage, nextImage, compatibleOverlay, middle, centerWidth, centerHeight,
-		ie6 = !window.XMLHttpRequest, hiddenElements = [], documentElement = document.documentElement,
+		ie6 = !window.XMLHttpRequest, hiddenElements = [],
 
 	// Preload images
 	preload = {}, preloadPrev = new Image(), preloadNext = new Image(),
@@ -25,20 +25,22 @@
 		$("body").append(
 			$([
 				overlay = $('<div id="lbOverlay" />').click(close)[0],
-				center = $('<div id="lbCenter" />')[0],
-				bottomContainer = $('<div id="lbBottomContainer" />')[0]
+				dialog = $('<div id="lbDialog" role="dialog" aria-labeledby="lbCaption" aria-describedby="lbNumber" tabindex="-1" />').append([
+					center = $('<div id="lbCenter" />')[0],
+					bottomContainer = $('<div id="lbBottomContainer" />')[0]
+				])[0]
 			]).css("display", "none")
 		);
 
 		image = $('<div id="lbImage" />').appendTo(center).append(
 			sizer = $('<div style="position: relative;" />').append([
-				prevLink = $('<a id="lbPrevLink" href="#" />').click(previous)[0],
-				nextLink = $('<a id="lbNextLink" href="#" />').click(next)[0]
+				prevLink = $('<button id="lbPrevLink" aria-label="Previous" />').click(previous)[0],
+				nextLink = $('<button id="lbNextLink" aria-label="Next" />').click(next)[0]
 			])[0]
 		)[0];
 
 		bottom = $('<div id="lbBottom" />').appendTo(bottomContainer).append([
-			$('<a id="lbCloseLink" href="#" />').click(close)[0],
+			$('<button id="lbCloseLink"  aria-label="Close" />').click(close)[0],
 			caption = $('<div id="lbCaption" />')[0],
 			number = $('<div id="lbNumber" />')[0],
 			$('<div style="clear: both;" />')[0]
@@ -78,6 +80,7 @@
 		centerWidth = options.initialWidth;
 		centerHeight = options.initialHeight;
 		$(center).css({top: Math.max(0, middle - (centerHeight / 2)), width: centerWidth, height: centerHeight, marginLeft: -centerWidth/2}).show();
+		$(dialog).show();
 		compatibleOverlay = ie6 || (overlay.currentStyle && (overlay.currentStyle.position != "fixed"));
 		if (compatibleOverlay) overlay.style.position = "absolute";
 		$(overlay).css("opacity", options.overlayOpacity).fadeIn(options.overlayFadeDuration);
@@ -114,6 +117,9 @@
 			filteredLinks = $.grep(links, function(el, i) {
 				return linksFilter.call(link, el, i);
 			});
+
+			// Remember the opener
+			$(link).addClass('slimbox-opener');
 
 			// We cannot use jQuery.map() because it flattens the returned array
 			for (length = filteredLinks.length; i < length; ++i) {
@@ -213,6 +219,7 @@
 			$(bottomContainer).css({width: centerWidth, top: top + centerHeight, marginLeft: -centerWidth/2, visibility: "hidden", display: ""});
 			$(image).css({display: "none", visibility: "", opacity: ""}).fadeIn(options.imageFadeDuration, animateCaption);
 		});
+		$(dialog).focus();
 	}
 
 	function animateCaption() {
@@ -233,8 +240,11 @@
 		if (activeImage >= 0) {
 			stop();
 			activeImage = prevImage = nextImage = -1;
-			$(center).hide();
+			$([center, dialog]).hide();
 			$(overlay).stop().fadeOut(options.overlayFadeDuration, setup);
+			
+			// Restore focus to opener
+			$('.slimbox-opener').focus().removeClass('slimbox-opener');
 		}
 
 		return false;
