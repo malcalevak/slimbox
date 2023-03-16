@@ -15,7 +15,7 @@
 	preload = {}, preloadPrev = new Image(), preloadNext = new Image(),
 
 	// DOM elements
-	overlay, center, image, sizer, prevLink, nextLink, bottomContainer, bottom, caption, number;
+	overlay, center, image, sizer, prevLink, nextLink, closeLink, bottomContainer, bottom, caption, number;
 
 	/*
 		Initialization
@@ -35,13 +35,13 @@
 
 		image = $('<div id="lbImage" />').appendTo(center).append(
 			sizer = $('<div style="position: relative;" />').append([
-				prevLink = $('<button id="lbPrevLink" aria-label="Previous" />').click(previous)[0],
-				nextLink = $('<button id="lbNextLink" aria-label="Next" />').click(next)[0]
+				prevLink = $('<button id="lbPrevLink" />').click(previous)[0],
+				nextLink = $('<button id="lbNextLink" />').click(next)[0]
 			])[0]
 		)[0];
 
 		bottom = $('<div id="lbBottom" />').appendTo(bottomContainer).append([
-			$('<button id="lbCloseLink"  aria-label="Close" />').click(close)[0],
+			closeLink = $('<button id="lbCloseLink" />').click(close)[0],
 			caption = $('<div id="lbCaption" />')[0],
 			number = $('<div id="lbNumber" />')[0],
 			$('<div style="clear: both;" />')[0]
@@ -68,7 +68,10 @@
 			counterText: "Image {x} of {y}",	// Translate or change as you wish, or set it to false to disable counter text for image groups
 			closeKeys: [27, 88, 67],		// Array of keycodes to close Slimbox, default: Esc (27), 'x' (88), 'c' (67)
 			previousKeys: [37, 80],			// Array of keycodes to navigate to the previous image, default: Left arrow (37), 'p' (80)
-			nextKeys: [39, 78]			// Array of keycodes to navigate to the next image, default: Right arrow (39), 'n' (78)
+			nextKeys: [39, 78],			// Array of keycodes to navigate to the next image, default: Right arrow (39), 'n' (78)
+			closeText: "Close",		// Translate or change as you wish
+			nextText: "Next",		// Translate or change as you wish
+			prevText: "Previous",		// Translate or change as you wish
 		}, _options);
 
 		// The function is called for a single image, with URL and Title as first two arguments
@@ -76,6 +79,10 @@
 			_images = [[_images, startImage]];
 			startImage = 0;
 		}
+
+		$(closeLink).attr("aria-label",options.closeText);
+		$(nextLink).attr("aria-label",options.nextText);
+		$(prevLink).attr("aria-label",options.prevText);
 
 		middle = win.scrollTop() + (win.height() / 2);
 		centerWidth = options.initialWidth;
