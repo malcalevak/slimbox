@@ -26,7 +26,7 @@
 		$("body").append(
 			$([
 				overlay = $('<div id="lbOverlay" />').click(close)[0],
-				dialog = $('<div id="lbDialog" role="dialog" aria-labeledby="lbCaption" aria-describedby="lbNumber" tabindex="-1" />').append([
+				dialog = $('<div id="lbDialog" role="dialog" aria-labelledby="lbCaption" aria-describedby="lbNumber" tabindex="-1" />').append([
 					center = $('<div id="lbCenter" />')[0],
 					bottomContainer = $('<div id="lbBottomContainer" />')[0]
 				])[0]
