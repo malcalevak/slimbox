@@ -9,6 +9,7 @@
 	// Global variables, accessible to Slimbox only
 	var win = $(window), options, images, activeImage = -1, activeURL, prevImage, nextImage, compatibleOverlay, middle, centerWidth, centerHeight,
 		ie6 = !window.XMLHttpRequest, hiddenElements = [],
+		focusable, firstFocusable, lastFocusable,
 
 	// Preload images
 	preload = {}, preloadPrev = new Image(), preloadNext = new Image(),
@@ -118,7 +119,8 @@
 				return linksFilter.call(link, el, i);
 			});
 
-			// Remember the opener
+			// Remember the opener, remove any existing opener
+			$('.slimbox-opener').removeClass('slimbox-opener');
 			$(link).addClass('slimbox-opener');
 
 			// We cannot use jQuery.map() because it flattens the returned array
@@ -165,6 +167,7 @@
 		return (fn(code, options.closeKeys) >= 0) ? close()
 			: (fn(code, options.nextKeys) >= 0) ? next()
 			: (fn(code, options.previousKeys) >= 0) ? previous()
+			: (code === 9) ? trapFocus(event)
 			: null;
 	}
 
@@ -227,6 +230,11 @@
 		if (nextImage >= 0) $(nextLink).show();
 		$(bottom).css("marginTop", -bottom.offsetHeight).animate({marginTop: 0}, options.captionAnimationDuration);
 		bottomContainer.style.visibility = "";
+
+		// Record focusable elements
+		focusable = $(dialog).find('button, [href]').filter(':visible'),
+		firstFocusable = focusable[0],
+		lastFocusable = focusable[focusable.length - 1];
 	}
 
 	function stop() {
@@ -242,12 +250,22 @@
 			activeImage = prevImage = nextImage = -1;
 			$([center, dialog]).hide();
 			$(overlay).stop().fadeOut(options.overlayFadeDuration, setup);
-			
+
 			// Restore focus to opener
 			$('.slimbox-opener').focus().removeClass('slimbox-opener');
 		}
 
 		return false;
+	}
+
+	function trapFocus(e) {
+		if(document.activeElement === lastFocusable && !e.shiftKey) {
+			e.preventDefault();
+			firstFocusable.focus();
+		} else if ((document.activeElement === firstFocusable || document.activeElement === dialog) && e.shiftKey) {
+			e.preventDefault();
+			lastFocusable.focus();
+		}
 	}
 
 })(jQuery);
